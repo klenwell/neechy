@@ -96,9 +96,11 @@ class NeechyConsoleService extends NeechyService {
 NEECHY CONSOLE ERROR:
 %s
 
+%s
+
 
 STDERR;
-        $output = sprintf($format, $e->getMessage());
+        $output = sprintf($format, $e->getMessage(), $e->getTraceAsString());
         $response = NeechyResponse::stderr($output);
         return $response;
     }
