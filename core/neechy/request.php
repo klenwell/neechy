@@ -31,6 +31,11 @@ class NeechyRequest {
     # Constructor
     #
     public function __construct() {
+        $in_console = ( php_sapi_name() == 'cli' );
+        if ( $in_console ) {
+            $_SERVER["REQUEST_URI"] = '';
+        }
+
         if ( ! isset($_SERVER["REQUEST_URI"]) ) {
             throw new NeechyRequestError('$_SERVER["REQUEST_URI"] not found.', 500);
         }
