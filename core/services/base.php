@@ -15,12 +15,14 @@ class NeechyService {
     #
     public $type = 'base';
     public $config = null;
+    public $request = null;
 
     #
     # Constructor
     #
     public function __construct($config) {
         $this->config = $config;
+        $this->request = new NeechyRequest();
     }
 
     #

@@ -18,11 +18,6 @@ require_once('../core/handlers/error/handler.php');
 
 class NeechyWebService extends NeechyService {
     #
-    # Properties
-    #
-    private $request = null;
-
-    #
     # Constructor
     #
     public function __construct($config) {
@@ -36,7 +31,6 @@ class NeechyWebService extends NeechyService {
         try {
             NeechySecurity::start_session();
             NeechySecurity::prevent_csrf();
-            $this->request = NeechyRequest::load();
             $this->validate_environment();
             $handler = $this->load_handler();
             $response = $handler->handle();
@@ -48,6 +42,7 @@ class NeechyWebService extends NeechyService {
 
         $response->send_headers();
         $response->render();
+        return $response;
     }
 
     #
@@ -88,7 +83,6 @@ class NeechyWebService extends NeechyService {
     }
 
     private function load_handler() {
-
         $handler_app_path = NeechyPath::join(NEECHY_HANDLER_APP_PATH,
             $this->request->handler, 'handler.php');
         $handler_core_path = NeechyPath::join(NEECHY_HANDLER_CORE_PATH,

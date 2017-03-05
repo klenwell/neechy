@@ -49,10 +49,15 @@ class ConsoleServiceTest extends PHPUnit_Framework_TestCase {
         $this->assertInstanceOf('NeechyConsoleService', $console_service);
         $this->assertEquals('test', NeechyConfig::environment());
         $this->assertFalse(array_key_exists('REQUEST_URI', $_SERVER));
+        $this->assertTrue(array_key_exists('argv', $_SERVER));
+        $this->assertEquals($_SERVER['argv'][1], 'install');
+        $this->assertEquals($console_service->request->handler, 'install');
 
         # Act
-        # If it gets this far, then issue 16 has been resolved.
-        return $this->markTestSkipped('Test hangs when serve is called.');
+        # Note: to not freeze, must mock out InstallHandler to respond to user prompts.
+        # See InstallHandlerTest for example.
+        # If test makes it this far, then Issue 16 is resolved.
+        $this->markTestIncomplete('Need to mock out handler user prompts.');
         $response = $console_service->serve();
 
         # Assert
