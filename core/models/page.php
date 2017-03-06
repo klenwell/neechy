@@ -17,6 +17,8 @@ require_once('../core/neechy/formatter.php');
 
 class Page extends NeechyModel {
 
+    const MAX_BODY_LENGTH = 1000;
+
     protected static $schema = <<<MYSQL
 CREATE TABLE pages (
     id int(11) NOT NULL auto_increment,
@@ -41,6 +43,7 @@ MYSQL;
     public $primogenitor = NULL;
     public $editor = NULL;
     public $edits = array();
+    public $validation_errors = array();
 
     #
     # Constructor
@@ -127,6 +130,36 @@ MYSQL;
     }
 
     #
+    # Validation Methods
+    #
+    public function is_valid() {
+        $this->validation_errors = array();
+        $this->validate_body();
+        return count($this->validation_errors) > 0;
+    }
+
+    public function validate_body() {
+        if ( empty($this->field('body')) ) {
+            $this->validation_errors['body'] = 'Body field required.';
+        }
+        elseif ( strlen($this->field('body')) > self::MAX_BODY_LENGTH ) {
+            $this->validation_errors['body'] =
+                sprintf('Page length can be no longer than %s characters. Please shorten.',
+                        self::MAX_BODY_LENGTH);
+        }
+    }
+
+    public function error_message() {
+        $messages = '';
+
+        foreach ( $this->validations_errors as $field => $error ) {
+            $messages[] = sprintf('<p>%s</p>', $error);
+        }
+
+        return implode("\n", $messages);
+    }
+
+    #
     # Public Find Methods
     #
     public function find_primogenitor_by_title($title) {
@@ -175,7 +208,7 @@ MYSQL;
     }
 
     #
-    # Public Attibute Methods
+    # Public Attribute Methods
     #
     public function url($handler='page', $options=array()) {
         return NeechyPath::url($handler, $this->field('slug'), $options);
