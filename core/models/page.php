@@ -139,10 +139,14 @@ MYSQL;
     }
 
     public function validate_body() {
-        if ( empty($this->field('body')) ) {
+        # empty pre-PHP 5.5 needs a variable.
+        # See http://stackoverflow.com/a/2173318/1093087.
+        $body = $this->field('body');
+
+        if ( empty($body) ) {
             $this->validation_errors['body'] = 'Body field required.';
         }
-        elseif ( strlen($this->field('body')) > self::MAX_BODY_LENGTH ) {
+        elseif ( strlen($body) > self::MAX_BODY_LENGTH ) {
             $this->validation_errors['body'] =
                 sprintf('Page length can be no longer than %s characters. Please shorten.',
                         self::MAX_BODY_LENGTH);
