@@ -33,6 +33,34 @@ class EditorHandlerTest extends PHPUnit_Framework_TestCase {
     /**
      * Tests
      */
+    public function testExpectsPageToBeUpdate() {
+        # Arrange
+        $_SERVER['REQUEST_URI'] = '/editor/NeechyPage';
+        $_POST['purpose'] = 'save';
+        $_POST['wmd-input'] = '**Bold** and *italics*';
+        $page = Page::find_by_title('NeechyPage');
+        $request = new NeechyRequest();
+        $request->handler = 'edit';
+        $request->action = $page->field('title');
+        $handler = new EditorHandler($request);
+        $expected_exception = 'redirected to /page/neechypage';
+
+        # Assume
+        $this->assertEquals($page->field('title'), 'NeechyPage');
+        $this->assertNotEquals($page->field('body'), $_POST['wmd-input']);
+        $this->assertEquals($handler->request->route, '/editor/NeechyPage');
+        $this->assertEquals($handler->request->handler, 'edit');
+
+        # Act
+        $this->setExpectedException('NeechyTestException', $expected_exception);
+        $response = $handler->handle();
+        $page = Page::find_by_title('NeechyPage');
+
+        # Assert
+        $this->assertEquals($response->status, 200);
+        $this->assertEquals($page->field('body'), $_POST['wmd-input']);
+    }
+
     public function testShouldDisplayEditor() {
         $request = new NeechyRequest();
         $request->handler = 'edit';

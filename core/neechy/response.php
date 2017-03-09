@@ -5,6 +5,7 @@
  * Neechy Response class
  *
  */
+require_once('../core/neechy/errors.php');
 
 
 class NeechyResponse {
@@ -28,6 +29,13 @@ class NeechyResponse {
     # Public Static Methods
     #
     static public function redirect($url, $status_code=303) {
+        # Header calls will break PhpUnit tests and there's no clean way around
+        # it. So we use the ENV variable set by test bootstrap.
+        if ( $_ENV['NEECHY_ENV'] == 'test' ) {
+            $message = sprintf('redirected to %s', $url);
+            throw new NeechyTestException($message);
+        }
+
         # See http://stackoverflow.com/a/768472/1093087
         $location = sprintf('Location: %s', $url);
         header($location, true, $status_code);

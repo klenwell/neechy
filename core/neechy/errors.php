@@ -22,6 +22,8 @@ class NeechyError extends Exception {
     }
 }
 
+class NeechyTestException extends NeechyError {}
+
 class NeechyWebServiceError extends NeechyError {}
 
 class NeechyConsoleError extends NeechyError {}

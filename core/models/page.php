@@ -135,7 +135,7 @@ MYSQL;
     public function is_valid() {
         $this->validation_errors = array();
         $this->validate_body();
-        return count($this->validation_errors) > 0;
+        return count($this->validation_errors) < 1;
     }
 
     public function validate_body() {
@@ -154,9 +154,9 @@ MYSQL;
     }
 
     public function error_message() {
-        $messages = '';
+        $messages = array();
 
-        foreach ( $this->validations_errors as $field => $error ) {
+        foreach ( $this->validation_errors as $field => $error ) {
             $messages[] = sprintf('<p>%s</p>', $error);
         }
 

@@ -33,6 +33,13 @@ class PageHandlerTest extends PHPUnit_Framework_TestCase {
     /**
      * Tests
      */
+    public function testInstantiates() {
+        $request = new NeechyRequest();
+        $handler = new PageHandler($request);
+        $this->assertInstanceOf('PageHandler', $handler);
+        $this->assertInstanceOf('NeechyHandler', $handler);
+    }
+
     public function testShouldDisplayPage() {
         # Arrange
         $_SERVER['REQUEST_URI'] = '/page/NeechyPage';
@@ -52,12 +59,5 @@ class PageHandlerTest extends PHPUnit_Framework_TestCase {
         $this->assertContains('<div class="tab-pane page active" id="read">',
                               $response->body);
         $this->assertContains($page->body_to_html(), $response->body);
-    }
-
-    public function testInstantiates() {
-        $request = new NeechyRequest();
-        $handler = new PageHandler($request);
-        $this->assertInstanceOf('PageHandler', $handler);
-        $this->assertInstanceOf('NeechyHandler', $handler);
     }
 }
