@@ -31,7 +31,7 @@ class NeechyResponse {
     static public function redirect($url, $status_code=303) {
         # Header calls will break PhpUnit tests and there's no clean way around
         # it. So we use the ENV variable set by test bootstrap.
-        if ( $_ENV['NEECHY_ENV'] == 'test' ) {
+        if ( isset($_ENV['NEECHY_ENV']) && $_ENV['NEECHY_ENV'] == 'test' ) {
             $message = sprintf('redirected to %s', $url);
             throw new NeechyTestException($message);
         }
