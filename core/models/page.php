@@ -222,6 +222,10 @@ MYSQL;
         return sprintf('/history/%s/%s', $this->field('slug'), $this->field('id'));
     }
 
+    public function editor_url() {
+        return sprintf('/editor/%s', $this->field('slug'));
+    }
+
     public function editor_link() {
         if ( ! $this->editor ) {
             return 'N/A';

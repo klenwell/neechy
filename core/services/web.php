@@ -21,6 +21,7 @@ class NeechyWebService extends NeechyService {
     # Constructor
     #
     public function __construct($config) {
+        // This will create request object.
         parent::__construct($config);
     }
 

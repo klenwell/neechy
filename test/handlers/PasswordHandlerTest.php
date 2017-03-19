@@ -66,7 +66,8 @@ class PasswordHandlerTest extends PHPUnit_Framework_TestCase {
                 ->method('redirect')
                 ->will($this->returnValue('redirected'));
 
-        $this->assertNull(User::current());
+        $this->assertNull(User::current()->field('name'));
+        $this->assertFalse(User::current()->is_logged_in());
         $redirected = $handler->handle();
         $this->assertEquals('redirected', $redirected);
     }

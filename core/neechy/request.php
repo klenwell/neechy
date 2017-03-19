@@ -47,6 +47,9 @@ class NeechyRequest {
         }
 
         $this->format = $this->extract_format();
+
+        // Identify request user (if user has logged in).
+        $this->user = User::current();
     }
 
     #

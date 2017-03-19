@@ -36,9 +36,8 @@ class PasswordHandler extends NeechyHandler {
             $form = new PasswordFormValidator($this->request);
 
             if ( $form->validate('old-password', 'new-password', 'new-password-confirm') ) {
-                $user = User::current();
-                $user->set_password($this->request->post('new-password'));
-                if ( $user->save() ) {
+                $this->request->user->set_password($this->request->post('new-password'));
+                if ( $this->request->user->save() ) {
                     $this->t->flash('Your password has been changed.', 'success');
                 }
                 else {

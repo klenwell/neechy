@@ -57,8 +57,11 @@ class InstallHandlerTest extends PHPUnit_Framework_TestCase {
     }
 
     public function assertDatabaseDoesNotExist($db_name) {
+        $message = 'Database %s should not exist at this time. Did a previous ' .
+                   'test run abort prematurely?  May fix itself in cleanup. Try ' .
+                   'running again or delete the database.';
         $this->assertFalse((bool) $this->select_database($db_name),
-                           sprintf('Database %s should not exist at this time.', $db_name));
+                           sprintf($message, $db_name));
     }
 
     public function assertUserExists($name) {

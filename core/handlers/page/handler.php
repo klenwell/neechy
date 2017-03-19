@@ -38,8 +38,9 @@ class PageHandler extends NeechyHandler {
             return new NeechyResponse($this->page->to_json(), 200);
         }
         else {
+            $status = $this->page->exists() ? 200 : 404;
             $content = $this->render_view('content');
-            return $this->respond($content);
+            return $this->respond($content, $status);
         }
     }
 

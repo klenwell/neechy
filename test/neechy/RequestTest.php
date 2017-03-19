@@ -7,14 +7,15 @@
  *
  */
 require_once('../core/neechy/request.php');
-
+require_once('../core/models/user.php');
+require_once('../test/helper.php');
 
 class NeechyRequestTest extends PHPUnit_Framework_TestCase {
-
     /**
      * Test Fixtures
      */
     public function setUp() {
+        NeechyTestHelper::setUp();
         $_SERVER['REQUEST_URI'] = '/';
         $this->request = new NeechyRequest();
     }
@@ -22,6 +23,7 @@ class NeechyRequestTest extends PHPUnit_Framework_TestCase {
     public function tearDown() {
         $_SERVER = array();
         $this->request = null;
+        NeechyTestHelper::tearDown();
     }
 
     public function simulate_cgi_request($GET=null, $POST=null) {
