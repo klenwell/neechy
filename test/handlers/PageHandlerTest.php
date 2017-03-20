@@ -60,4 +60,22 @@ class PageHandlerTest extends PHPUnit_Framework_TestCase {
                               $response->body);
         $this->assertContains($page->body_to_html(), $response->body);
     }
+
+    public function testExpects404WhenPageDoesNotExist() {
+        # Arrange
+        $_SERVER['REQUEST_URI'] = '/page/SirNotAppearingInThisTest';
+        $request = new NeechyRequest();
+        $handler = new PageHandler($request);
+
+        # Assume
+        $this->assertEquals($handler->request->route, $_SERVER['REQUEST_URI']);
+        $this->assertEquals($handler->request->handler, 'page');
+
+        # Act
+        $response = $handler->handle();
+
+        # Assert
+        $this->assertEquals(404, $response->status);
+        $this->assertContains("This page doesn't exist yet.", $response->body);
+    }
 }
