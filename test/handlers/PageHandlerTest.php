@@ -44,6 +44,7 @@ class PageHandlerTest extends PHPUnit_Framework_TestCase {
         # Arrange
         $_SERVER['REQUEST_URI'] = '/page/NeechyPage';
         $request = new NeechyRequest();
+        $request->user = User::current();
         $handler = new PageHandler($request);
 
         # Assume
@@ -65,6 +66,7 @@ class PageHandlerTest extends PHPUnit_Framework_TestCase {
         # Arrange
         $_SERVER['REQUEST_URI'] = '/page/SirNotAppearingInThisTest';
         $request = new NeechyRequest();
+        $request->user = User::current();
         $handler = new PageHandler($request);
 
         # Assume

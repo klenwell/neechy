@@ -22,6 +22,7 @@ class NeechyRequest {
     public $handler = null;
     public $action = null;
     public $format = null;
+    public $user = null;                 # User model object set by WebService
 
     private $route_params = array();     # array of path params parsed from route
     private $params = array();           # array of route params following handler/action
