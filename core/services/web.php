@@ -33,6 +33,7 @@ class NeechyWebService extends NeechyService {
             NeechySecurity::start_session();
             NeechySecurity::prevent_csrf();
             $this->validate_environment();
+            $this->identify_request_user();
             $handler = $this->load_handler();
             $response = $handler->handle();
         }
@@ -81,6 +82,11 @@ class NeechyWebService extends NeechyService {
             $handler->setup_dev();
             ob_end_clean();
         }
+    }
+
+    private function identify_request_user() {
+        // Identify request user (if user has logged in).
+        $this->request->user = User::current();
     }
 
     private function load_handler() {
