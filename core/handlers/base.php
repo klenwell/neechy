@@ -27,7 +27,9 @@ class NeechyHandler {
     #
     public function __construct($request=null) {
         $this->request = $request;
-        $this->t = NeechyTemplater::load();
+        $this->t = NeechyTemplater::load_for_handler($this);
+
+        # TODO: Remove this and use method above.
         $this->t->data('handler', get_class($this));
     }
 

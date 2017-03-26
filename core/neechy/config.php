@@ -81,15 +81,6 @@ class NeechyConfig {
         return NeechyPath::join(NEECHY_ROOT, self::TEST_PATH);
     }
 
-    # TODO: remove
-    static public function deprecated_load_app_config($path=null) {
-        $app_config = new NeechyConfig();
-        $app_config->path = self::app_config_path();
-        $app_config->settings = $app_config->load_core_config_file($path);
-        unset($app_config->settings['core-loaded']);
-        return $app_config;
-    }
-
     #
     # Protected Static Methods
     #

@@ -66,12 +66,14 @@ class PasswordHandlerTest extends PHPUnit_Framework_TestCase {
                 ->method('redirect')
                 ->will($this->returnValue('redirected'));
 
-        $this->assertNull(User::current());
+        $this->assertNull(User::current()->field('name'));
+        $this->assertFalse(User::current()->is_logged_in());
         $redirected = $handler->handle();
         $this->assertEquals('redirected', $redirected);
     }
 
     public function testShouldUpdatePassword() {
+        # Arrange
         $_POST['old-password'] = 'password';
         $_POST['new-password'] = sprintf('%supdated', $_POST['old-password']);
         $_POST['new-password-confirm'] = $_POST['new-password'];
@@ -81,10 +83,13 @@ class PasswordHandlerTest extends PHPUnit_Framework_TestCase {
         $old_password = $user->field('password');
 
         $request = new NeechyRequest();
+        $request->user = $user;
 
+        # Act
         $handler = new PasswordHandler($request);
         $response = $handler->handle();
 
+        # Assert
         $this->assertEquals(200, $response->status);
         $this->assertPasswordChanged($user->field('name'), $old_password);
         $this->assertContains('Your password has been changed.', $response->body);
@@ -121,6 +126,7 @@ class PasswordHandlerTest extends PHPUnit_Framework_TestCase {
         $old_password = $user->field('password');
 
         $request = new NeechyRequest();
+        $request->user = $user;
 
         $handler = new PasswordHandler($request);
         $response = $handler->handle();
@@ -142,6 +148,7 @@ class PasswordHandlerTest extends PHPUnit_Framework_TestCase {
         $old_password = $user->field('password');
 
         $request = new NeechyRequest();
+        $request->user = $user;
 
         $handler = new PasswordHandler($request);
         $response = $handler->handle();
@@ -165,6 +172,7 @@ class PasswordHandlerTest extends PHPUnit_Framework_TestCase {
         $old_password = $user->field('password');
 
         $request = new NeechyRequest();
+        $request->user = $user;
 
         $handler = new PasswordHandler($request);
         $response = $handler->handle();

@@ -55,6 +55,12 @@ class NeechyTemplater {
         }
     }
 
+    static public function load_for_handler($handler, $theme='bootstrap') {
+        $templater = NeechyTemplater::load($theme);
+        $templater->request = $handler->request;
+        return $templater;
+    }
+
     static public function clear() {
         self::$instance = null;
     }

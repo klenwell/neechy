@@ -33,26 +33,51 @@ class PageHandlerTest extends PHPUnit_Framework_TestCase {
     /**
      * Tests
      */
-    public function testShouldDisplayPage() {
-        $request = new NeechyRequest();
-        $request->handler = 'page';
-        $request->action = 'NeechyPage';
-
-        $handler = new PageHandler($request);
-        $response = $handler->handle();
-
-        $this->assertEquals(200, $response->status);
-        $this->assertContains('<div class="tab-pane page active" id="read">',
-                              $response->body);
-
-        $page = Page::find_by_title('NeechyPage');
-        $this->assertContains($page->body_to_html(), $response->body);
-    }
-
     public function testInstantiates() {
         $request = new NeechyRequest();
         $handler = new PageHandler($request);
         $this->assertInstanceOf('PageHandler', $handler);
         $this->assertInstanceOf('NeechyHandler', $handler);
+    }
+
+    public function testShouldDisplayPage() {
+        # Arrange
+        $_SERVER['REQUEST_URI'] = '/page/NeechyPage';
+        $request = new NeechyRequest();
+        $request->user = User::current();
+        $handler = new PageHandler($request);
+
+        # Assume
+        $this->assertEquals($handler->request->route, '/page/NeechyPage');
+        $this->assertEquals($handler->request->handler, 'page');
+
+        # Act
+        $response = $handler->handle();
+        $page = Page::find_by_title('NeechyPage');
+
+        # Assert
+        $this->assertEquals(200, $response->status);
+        $this->assertContains('<div class="tab-pane page active" id="read">',
+                              $response->body);
+        $this->assertContains($page->body_to_html(), $response->body);
+    }
+
+    public function testExpects404WhenPageDoesNotExist() {
+        # Arrange
+        $_SERVER['REQUEST_URI'] = '/page/SirNotAppearingInThisTest';
+        $request = new NeechyRequest();
+        $request->user = User::current();
+        $handler = new PageHandler($request);
+
+        # Assume
+        $this->assertEquals($handler->request->route, $_SERVER['REQUEST_URI']);
+        $this->assertEquals($handler->request->handler, 'page');
+
+        # Act
+        $response = $handler->handle();
+
+        # Assert
+        $this->assertEquals(404, $response->status);
+        $this->assertContains("This page doesn't exist yet.", $response->body);
     }
 }

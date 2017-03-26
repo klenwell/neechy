@@ -18,14 +18,10 @@ require_once('../core/handlers/error/handler.php');
 
 class NeechyWebService extends NeechyService {
     #
-    # Properties
-    #
-    private $request = null;
-
-    #
     # Constructor
     #
     public function __construct($config) {
+        // This will create request object.
         parent::__construct($config);
     }
 
@@ -36,8 +32,8 @@ class NeechyWebService extends NeechyService {
         try {
             NeechySecurity::start_session();
             NeechySecurity::prevent_csrf();
-            $this->request = NeechyRequest::load();
             $this->validate_environment();
+            $this->identify_request_user();
             $handler = $this->load_handler();
             $response = $handler->handle();
         }
@@ -48,12 +44,10 @@ class NeechyWebService extends NeechyService {
 
         $response->send_headers();
         $response->render();
+        return $response;
     }
 
-    #
-    # Private Functions
-    #
-    private function validate_environment() {
+    public function validate_environment() {
         if ( NeechyConfig::environment() == 'app' ) {
             return true;
         }
@@ -68,7 +62,7 @@ class NeechyWebService extends NeechyService {
         }
     }
 
-    private function setup_dev_environment() {
+    public function setup_dev_environment() {
         $handler_path = NeechyPath::join(NEECHY_HANDLER_CORE_PATH,
             'install', 'handler.php');
         require_once($handler_path);
@@ -87,8 +81,15 @@ class NeechyWebService extends NeechyService {
         }
     }
 
-    private function load_handler() {
+    #
+    # Private Functions
+    #
+    private function identify_request_user() {
+        // Identify request user (if user has logged in).
+        $this->request->user = User::current();
+    }
 
+    private function load_handler() {
         $handler_app_path = NeechyPath::join(NEECHY_HANDLER_APP_PATH,
             $this->request->handler, 'handler.php');
         $handler_core_path = NeechyPath::join(NEECHY_HANDLER_CORE_PATH,

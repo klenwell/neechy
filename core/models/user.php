@@ -35,9 +35,9 @@ CREATE TABLE users (
 ) CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE={{ engine }}
 MYSQL;
 
-    #
-    # Constants
-    #
+    /*
+     * Constants
+     */
     private static $STATUS_LEVELS = array('NEW'    => 1,
                                           'ADMIN'   => 2);
 
@@ -80,14 +80,26 @@ MYSQL;
     }
 
     public static function current($field=null) {
+        # Returns user object if field argument is null else field value for current
+        # user (if exists). If user not found in database, return new empty
+        # User object.
         if ( ! User::is_logged_in() ) {
-            return null;
-        }
-        elseif ( ! $field ) {
-            return User::find_by_name($_SESSION['user']['name']);
+            # Return object.
+            if ( ! $field ) {
+                return new User();
+            }
+            # Return null for field.
+            else {
+                return null;
+            }
         }
         else {
-            return $_SESSION['user'][$field];
+            if ( ! $field ) {
+                return User::find_by_name($_SESSION['user']['name']);
+            }
+            else {
+                return $_SESSION['user'][$field];
+            }
         }
     }
 
@@ -110,9 +122,9 @@ MYSQL;
         $this->set('password', NeechySecurity::hash_password($password));
     }
 
-    #
-    # Auth Methods
-    #
+    /*
+     * Auth Methods
+     */
     public function login() {
         $_SESSION['user'] = array(
             'name' => $this->field('name'),
@@ -125,5 +137,12 @@ MYSQL;
     public function logout() {
         unset($_SESSION['user']);
         return null;
+    }
+
+    /*
+     * Privilege Methods
+     */
+    public function can_create_page() {
+        return $this->is_logged_in();
     }
 }

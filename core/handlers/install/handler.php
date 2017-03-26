@@ -47,7 +47,7 @@ class InstallHandler extends NeechyHandler {
     #
     public function handle() {
         if ( $this->is_console ) {
-            $this->handle_in_console();
+            return $this->handle_in_console();
         }
         else {
             return '<h4>Install runs from the console.</h4>';
@@ -84,6 +84,7 @@ class InstallHandler extends NeechyHandler {
             $this->create_neechy_user();
             $this->create_default_pages();
             $this->create_admin_user();
+            return 'Script complete.';
         }
         catch (Exception $e) {
             $this->print_error($e);

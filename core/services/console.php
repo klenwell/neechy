@@ -18,13 +18,6 @@ require_once('../core/models/page.php');
 
 class NeechyConsoleService extends NeechyService {
     #
-    # Properties
-    #
-    var $args = array();
-    var $action = '';
-    var $params = array();
-
-    #
     # Constructor
     #
     public function __construct($config) {
@@ -32,13 +25,16 @@ class NeechyConsoleService extends NeechyService {
         $this->args = array_slice($_SERVER['argv'], 1);
         $this->type = 'console';
 
-        if ( ! isset($this->args[0]) ) {
+        // Sanity check request.
+        $in_console = ( php_sapi_name() == 'cli' );
+
+        if ( ! $in_console ) {
+            throw new NeechyConsoleError('invalid console request: cli not detected');
+        }
+
+        if ( ! isset($this->request->route) ) {
             throw new NeechyConsoleError(
                 'invalid console request: no action (task or handler) provided');
-        }
-        else {
-            $this->action = $this->args[0];
-            $this->params = array_slice($this->args, 1);
         }
     }
 
@@ -63,6 +59,7 @@ class NeechyConsoleService extends NeechyService {
         }
 
         $response->to_console();
+        return $response;
     }
 
     #
@@ -96,15 +93,17 @@ class NeechyConsoleService extends NeechyService {
 NEECHY CONSOLE ERROR:
 %s
 
+%s
+
 
 STDERR;
-        $output = sprintf($format, $e->getMessage());
+        $output = sprintf($format, $e->getMessage(), $e->getTraceAsString());
         $response = NeechyResponse::stderr($output);
         return $response;
     }
 
     private function task_path() {
-        $task_name = $this->action;
+        $task_name = $this->request->handler;
         $task_app_path = NeechyPath::join(NEECHY_TASK_APP_PATH, $task_name, 'task.php');
         $task_console_path = NeechyPath::join(
             NEECHY_TASK_CONSOLE_PATH, $task_name, 'task.php');
@@ -121,7 +120,7 @@ STDERR;
     }
 
     private function handler_path() {
-        $handler_name = $this->action;
+        $handler_name = $this->request->handler;
         $handler_app_path = NeechyPath::join(NEECHY_HANDLER_APP_PATH,
             $handler_name, 'handler.php');
         $handler_core_path = NeechyPath::join(NEECHY_HANDLER_CORE_PATH,
@@ -140,7 +139,7 @@ STDERR;
 
     private function load_task() {
         $task_path = $this->task_path();
-        $TaskClass = sprintf('%sTask', ucwords($this->action));
+        $TaskClass = sprintf('%sTask', ucwords($this->request->action));
 
         require_once($task_path);
         $task = new $TaskClass($this);
@@ -149,7 +148,7 @@ STDERR;
 
     private function load_handler() {
         $handler_path = $this->handler_path();
-        $HandlerClass = sprintf('%sHandler', ucwords($this->action));
+        $HandlerClass = sprintf('%sHandler', ucwords($this->request->handler));
 
         require_once($handler_path);
         $handler = new $HandlerClass();

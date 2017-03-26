@@ -18,33 +18,36 @@ class NeechyRequest {
     #
     static private $instance = null;
 
+    public $route = null;
     public $handler = null;
     public $action = null;
     public $format = null;
+    public $user = null;                 # User model object set by WebService
 
-    private $url_params = array();       # array of path params parsed from URI
-    private $params = array();           # array of URL params following handler/action
+    private $route_params = array();     # array of path params parsed from route
+    private $params = array();           # array of route params following handler/action
     private $query_params = array();     # associative array of query string params
-    private $valid_formats = array('html', 'ajax');
+
+    private $valid_formats = array('html', 'json', 'plain');
 
     #
     # Constructor
     #
     public function __construct() {
-        if ( ! isset($_SERVER["REQUEST_URI"]) ) {
-            throw new NeechyRequestError('$_SERVER["REQUEST_URI"] not found.', 500);
-        }
-
-        $this->uri = $_SERVER["REQUEST_URI"];
-        $this->url_params = $this->parse_url($this->uri);
+        $this->route = $this->compute_route();
+        $this->route_params = $this->parse_route($this->route);
         $this->query_params = array_merge($_GET, $_POST);
-        $this->format = $this->set_format();
-        $this->handler = (count($this->url_params) > 0) ? $this->url_params[0] : DEFAULT_HANDLER;
-        $this->action = (count($this->url_params) > 1) ? $this->url_params[1] : null;
 
-        if ( count($this->url_params) > 2 ) {
-            $this->params = array_slice($this->url_params, 2);
+        $this->handler = (count($this->route_params) > 0) ? $this->route_params[0] :
+            DEFAULT_HANDLER;
+        $this->action = (count($this->route_params) > 1) ? $this->route_params[1] :
+            null;
+
+        if ( count($this->route_params) > 2 ) {
+            $this->params = array_slice($this->route_params, 2);
         }
+
+        $this->format = $this->extract_format();
     }
 
     #
@@ -82,30 +85,51 @@ class NeechyRequest {
     #
     # Private Methods
     #
-    private function parse_url($url) {
-        if ( substr_count($url, '?') > 0 ) {
-            $url_part = explode('?', $url);
-            $url = $url_part[0];
+    private function compute_route() {
+        // Web request should have REQUEST_URL set
+        if ( isset($_SERVER['REQUEST_URI']) ) {
+            return $_SERVER['REQUEST_URI'];
         }
 
-        if ( substr_count($url, '/') < 1 ) {
-            return array();
-        }
-        else {
-            $url_params = explode('/', $url);
-            $url_params = array_slice($url_params, 1);
-
-            $last_index = count($url_params) - 1;
-            if ( trim($url_params[$last_index]) == '' ) {
-                unset($url_params[$last_index]);
+        // Console request should have argv set
+        if ( isset($_SERVER['argv']) ) {
+            if ( count($_SERVER['argv']) > 1 ) {
+                return $_SERVER['argv'][1];
             }
-
-            $url_params = array_map('urldecode', $url_params);
-            return $url_params;
+            else {
+                return '';
+            }
         }
+
+        throw new NeechyRequestError('Unable to compute route.', 500);
     }
 
-    private function set_format() {
+    private function parse_route($route) {
+        $route_params = array();
+
+        if ( substr_count($route, '?') > 0 ) {
+            $route_part = explode('?', $route);
+            $route = $route_part[0];
+        }
+
+        if ( substr_count($route, '/') < 1 ) {
+            $route_params = array($route);
+        }
+        else {
+            $route_params = explode('/', $route);
+            $route_params = array_slice($route_params, 1);
+
+            $last_index = count($route_params) - 1;
+            if ( trim($route_params[$last_index]) == '' ) {
+                unset($route_params[$last_index]);
+            }
+        }
+
+        $route_params = array_map('urldecode', $route_params);
+        return $route_params;
+    }
+
+    private function extract_format() {
         $format = $this->param('format');
         return (in_array($format, $this->valid_formats)) ? $format : 'html';
     }
