@@ -47,10 +47,7 @@ class NeechyWebService extends NeechyService {
         return $response;
     }
 
-    #
-    # Private Functions
-    #
-    private function validate_environment() {
+    public function validate_environment() {
         if ( NeechyConfig::environment() == 'app' ) {
             return true;
         }
@@ -65,7 +62,7 @@ class NeechyWebService extends NeechyService {
         }
     }
 
-    private function setup_dev_environment() {
+    public function setup_dev_environment() {
         $handler_path = NeechyPath::join(NEECHY_HANDLER_CORE_PATH,
             'install', 'handler.php');
         require_once($handler_path);
@@ -84,6 +81,9 @@ class NeechyWebService extends NeechyService {
         }
     }
 
+    #
+    # Private Functions
+    #
     private function identify_request_user() {
         // Identify request user (if user has logged in).
         $this->request->user = User::current();
